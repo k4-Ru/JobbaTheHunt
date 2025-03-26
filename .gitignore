@@ -2,7 +2,7 @@
 
 jobbathehunt-backend/.env
 jobbathehunt-backend/firebase-admin.json
-jobbathehunt-frontend/src/firebase.js
+jobbathehunt-frontend/.env
 
 
 #nodemodules
