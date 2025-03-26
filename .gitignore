@@ -1,0 +1,11 @@
+#credentials
+
+jobbathehunt-backend/.env
+jobbathehunt-backend/firebase-admin.json
+jobbathehunt-frontend/src/firebase.js
+
+
+#nodemodules
+
+jobbathehunt-backend/node_modules
+jobbathehunt-frontend/node_modules

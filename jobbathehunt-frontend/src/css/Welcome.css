@@ -1,0 +1,16 @@
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.welcome-text {
+  font-size: 3rem;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.fade-in-out {
+  opacity: 1;
+}
