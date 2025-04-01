@@ -25,7 +25,7 @@ const Interview = () => {
   }, []);
 
   const SelectedJob = (id) => {
-    navigate(`/job/${id}`);   // Navigate to job details page
+    navigate(`/job/${id}`);   // goto job details page
   };
 
   if (loading) {

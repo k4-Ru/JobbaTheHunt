@@ -207,6 +207,8 @@ app.post("/check-preferences", async (req, res) => {
 
 
 
+
+
 //testing ng skills and interest ni  user
 app.get("/user-preferences/:firebase_uid", async (req, res) => {
   try {
@@ -238,6 +240,8 @@ app.get("/user-preferences/:firebase_uid", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 
 
 
