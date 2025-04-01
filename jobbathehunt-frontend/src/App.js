@@ -10,6 +10,10 @@ import Choose from "./pages/ChooseYourPath";
 import Interview from "./pages/Interview";
 import JobDesc from "./pages/JobDesc";
 
+
+import Session from "./pages/session";
+
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);  //loding
@@ -38,6 +42,8 @@ function App() {
         <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />        
         <Route path="/interview" element={user ? <Interview /> : <Navigate to="/login" />} />
         <Route path="/job/:id" element={user ? <JobDesc /> : <Navigate to="/login" />} />  
+        <Route path="/speech" element={user ? <Session /> : <Navigate to="/login" />} />
+
       </Routes>
     </Router>
   );
