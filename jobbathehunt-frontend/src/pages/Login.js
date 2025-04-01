@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, signUpWithGoogle } from "./auth";
+import { loginUser, signUpWithGoogle } from "../components/auth";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth"; 
 

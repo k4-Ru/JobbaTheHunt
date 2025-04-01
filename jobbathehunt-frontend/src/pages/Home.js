@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./sidebar";  // Import Sidebar
+import Sidebar from "../components/sidebar";  // Import Sidebar
 
 function Home() {
   const [user, setUser] = useState(null);
@@ -46,11 +46,11 @@ function Home() {
   }
 
   return (
-    <div className="flex">
+    <div style={{ display: "flex" }}>
       <Sidebar />  {/* Sidebar stays on the side of the screen */}
       
       {/* Main Content */}
-      <div className="flex-1 p-10 ml-16 md:ml-64">  {/* Add margin to avoid overlap */}
+      <div  style={{ padding: "20px" }} className="flex-1 p-10 ml-16 md:ml-64">  {/* Add margin to avoid overlap */}
         <h1 className="text-3xl font-bold">Welcome to Home</h1>
         {user ? (
           <div className="mt-4">

@@ -1,34 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { auth } from "../firebase";  // Import Firebase auth
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
 import axios from "axios";
-import { onAuthStateChanged , signOut} from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const Sidebar = () => {
   const [profileImage, setProfileImage] = useState("");
+  const [loading, setLoading] = useState(true);  // Loading state
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    const fetchProfileImage = async () => {
-      const user = auth.currentUser;
-
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const response = await axios.get(`http://localhost:5000/get-profile/${user.uid}`);
+          const response = await axios.get(`http://localhost:5000/get-pfp/${user.uid}`);
           setProfileImage(response.data.profileImage);
         } catch (error) {
-          console.error("Error fetching profile image:", error);
+          console.error("Error fetching profile picture:", error);
         }
+      } else {
+        navigate("/login");   // Redirect to login pag wala user 
       }
-    };
+      setLoading(false);
+    });
 
-    fetchProfileImage();
-  }, []);
-
-
-
+    return () => unsubscribe();
+  }, [navigate]);
 
 
 
@@ -36,10 +33,7 @@ const Sidebar = () => {
 
 
 
-
-
-
-
+  
 
   const handleLogout = async () => {
     try {
@@ -50,47 +44,30 @@ const Sidebar = () => {
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
-      {/* Display Profile Image */}
       <div>
         {profileImage ? (
-          <img
-            src={profileImage}
-            alt="Profile"
-            width="80"
-            height="80"
-          />
+          <img src={profileImage} alt="Profile" width="80" height="80" style={{ borderRadius: "50%" }} />
         ) : (
           <p>Loading...</p>
         )}
         <hr />
       </div>
 
-
-      {/* Navigation Links */}
       <nav>
-  <ul>
-    <li><Link to="/">Home</Link></li>
-    <li><Link to="/interview">Interview</Link></li>
-    <li><Link to="/progress">Progress</Link></li>
-    <li><Link to="/settings">Settings</Link></li>
-    <li><button onClick={handleLogout}>Log out</button></li>
-  </ul>
-</nav>
+        <ul>
+          <li><Link to="/Home">Home</Link></li>
+          <li><Link to="/interview">Interview</Link></li>
+          <li><Link to="/progress">Progress</Link></li>
+          <li><Link to="/settings">Settings</Link></li>
+          <li><button onClick={handleLogout}>Log out</button></li>
+        </ul>
+      </nav>
     </div>
   );
 };

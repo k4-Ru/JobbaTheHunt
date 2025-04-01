@@ -57,7 +57,11 @@ admin.initializeApp({
 
 
 
-app.get("/get-profile/:uid", async (req, res) => {
+
+
+
+//pfp ng user 
+app.get("/get-pfp/:uid", async (req, res) => {
   const { uid } = req.params;
 
   try {
@@ -333,7 +337,7 @@ app.get("/auth/user/:id", async (req, res) => {
 
     res.status(200).json(rows[0]);
   } catch (error) {
-    console.error("❌ Error fetching user:", error);
+    console.error("Error fetching user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -348,4 +352,45 @@ app.get("/auth/user/:id", async (req, res) => {
 
 
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+//homepage section
+
+
+
+//interview page section
+
+app.get("/job-roles", async (req, res) => {
+  try {
+    const [roles] = await db.execute("SELECT id, role_name FROM job_roles");
+    res.status(200).json(roles);
+  } catch (error) {
+    console.error("Error fetching job roles:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+app.get("/job-role/:id", async (req, res) => {     //job by id
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.execute("SELECT * FROM job_roles WHERE id = ?", [id]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Job role not found" });
+    }
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("Error fetching job role:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+
+
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

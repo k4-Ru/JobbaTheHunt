@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase"; 
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Welcome from "./components/Welcome";
-import Home from "./components/Home";
-import Choose from "./components/ChooseYourPath";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Welcome from "./pages/Welcome";
+import Home from "./pages/Home";
+import Choose from "./pages/ChooseYourPath";
+import Interview from "./pages/Interview";
+import JobDesc from "./pages/JobDesc";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -32,8 +34,10 @@ function App() {
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={user ? <Navigate to="/home" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/home" /> : <Register />} />
-        <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />
         <Route path="/choose" element={user ? <Choose userId={user.uid} /> : <Navigate to="/login" />} />
+        <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />        
+        <Route path="/interview" element={user ? <Interview /> : <Navigate to="/login" />} />
+        <Route path="/job/:id" element={user ? <JobDesc /> : <Navigate to="/login" />} />  
       </Routes>
     </Router>
   );
