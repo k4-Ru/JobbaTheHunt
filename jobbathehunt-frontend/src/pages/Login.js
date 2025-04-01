@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser, signUpWithGoogle } from "./auth";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth"; 
-import "./login.css";
+import "../css/login.css";
 
 
 
