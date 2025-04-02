@@ -2,18 +2,19 @@ import React, { useState, useEffect } from "react";
 import Transcription from "../components/transcription";
 
 const Session = () => {
-  const [text, setText] = useState(""); // Holds the current transcription
-  const [isListening, setIsListening] = useState(false); // Tracks if speech recognition is active
+  const [text, setText] = useState("");
+  const [isListening, setIsListening] = useState(false);
   let recognition = null;
 
   useEffect(() => {
-    // Check if the browser supports speech recognition
+
+
+    // Check if the browser can speech to textt
     if (!("webkitSpeechRecognition" in window)) {
       alert("Your browser does not support speech recognition.");
       return;
     }
 
-    // Set up the speech recognition object
     recognition = new window.webkitSpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -27,22 +28,21 @@ const Session = () => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript + " ";
       }
-      setText(transcript.trim()); // Update the transcription text
+      setText(transcript.trim()); 
     };
 
-    // Start speech recognition when component mounts
+
     recognition.start();
 
-    // Clean up the recognition when component unmounts
     return () => recognition.abort();
   }, []);
 
   const toggleListening = () => {
     if (recognition) {
       if (isListening) {
-        recognition.stop(); // Stop speech recognition
+        recognition.stop();
       } else {
-        recognition.start(); // Start speech recognition
+        recognition.start(); 
       }
       setIsListening(!isListening); // Toggle the listening state
     }

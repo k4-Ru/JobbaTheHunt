@@ -32,7 +32,8 @@ const JobDesc = () => {
     return <p>Job not found</p>;
   }
 
-  // Split description into lines
+
+  // hatiin for each line
   const lines = job.description.split("\n");
 
   return (
@@ -42,7 +43,8 @@ const JobDesc = () => {
       <div style={{ padding: "20px", flex: 1 }}>
         <h1>{job.role_name}</h1>
 
-        {/* Display the clickable roadmap link if it exists */}
+
+        {/* roadmap, display if meron*/}
         {job.roadmap && (
           <p>
             <a href={job.roadmap} target="_blank" rel="noopener noreferrer">
@@ -54,14 +56,15 @@ const JobDesc = () => {
         <div>
           {lines.map((line, index) =>
             line.startsWith("-") ? (
-              <li key={index}>{line.substring(1).trim()}</li> // Bullet point
+              <li key={index}>{line.substring(1).trim()}</li> // Bullet point if nagsisimula sa "-"
             ) : (
               <p key={index}>{line}</p> // Regular text
             )
           )}
         </div>
 
-        {/* Buttons Section */}
+    
+
         <div style={{ marginTop: "20px" }}>
           <button
             onClick={() => navigate("/interview")}
@@ -70,10 +73,10 @@ const JobDesc = () => {
             Back
           </button>
 
-          {/* ✅ New "Start Interview" button */}
+         
           <button
             onClick={() => navigate("/speech")}
-            style={{ padding: "10px 20px", cursor: "pointer", backgroundColor: "blue", color: "white", border: "none", borderRadius: "5px" }}
+            style={{ padding: "10px 20px", cursor: "pointer"}}
           >
             Start Interview
           </button>
