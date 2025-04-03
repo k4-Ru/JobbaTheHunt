@@ -8,6 +8,9 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword,setConfirmPassword] = useState("");/* para sa confirm pass*/
+  const [showPassword, setShowPassword] = useState(false);/* para sa show pass*/
+  const [showConfirm,setShowConfirm] = useState(false);/* para sa hide pass*/
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +20,10 @@ function Register() {
       alert("Please fill in all fields.");
       return;
     }
-
+    if (password !==confirmPassword){
+      alert("Password is Incorrect!");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -94,38 +100,83 @@ function Register() {
       alert(error.message);
     }
   };
+  const handleLogin = () => {/*ginaya ko ung sa login tinangal ko kc ung button para maka back sa login */
+    navigate("/login");
+  };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>Register</h1>
+    <div className="register-container">
+      <div className="register-bg1"></div>
+      <div className="register-bg2"></div>
+      <div className="eggshoot"><img src="eggshoot.png" alt="bb"></img></div>
+      <h1 className="register-title">Jobba<span>The</span>Hunt</h1>
+      <div className="register-panel">
+        <div>
+        <h2 className="start">Get Started</h2></div>
       <input
         type="text"
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        className="register-box"
       />
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        className="register-box"
       />
+
+
+
+      <div className="password-container">
       <input
-        type="password"
+        type={showPassword?"text":"password"}
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        className="register-box password-input"
       />
-      <button onClick={handleRegister} disabled={loading}>
-        {loading ? "Registering..." : "Register"}
+      <img src={showPassword?  "open-eye.png":"close-eye.png"}
+      alt={"Show Password"?"hide pasword":"Show password"}
+      className="register-eyecon"
+      onClick={()=> setShowPassword(!showPassword)}
+      />
+       </div>
+
+
+       <div className="password-container">
+      <input
+      type={showConfirm?"text":"password"}/*toggle para sa show and hide ng pass */
+      placeholder="Confirm Password"
+      value={confirmPassword}
+      onChange={(e)=> setConfirmPassword(e.target.value)}
+      className="register-box password-input"
+      />
+      <img src={showConfirm? "open-eye.png":"close-eye.png"}
+      alt={"Show Password"?"hide pasword":"Show password"}
+      className="register-eyecon"
+      onClick={()=> setShowConfirm(!showConfirm)}
+      />  
+     </div>
+
+
+
+      <button onClick={handleRegister} className="signup-btn" disabled={loading}>
+        {loading ? "Registering..." : "Sign-Up"}
       </button>
-      <button onClick={handleGoogleSignUp} className="google-button">
-        Continue with Google
-      </button>
-      <button onClick={() => navigate("/login")} className="back-button">
-        Back to Login
-      </button>
-    </div>
+      <p className="continue">Continue with Google</p>
+      <div className="other-acc">
+            <button className="microsoft-acc"><img src="microsoft.png" alt="microsoft"/></button>
+              <button onClick={handleGoogleSignUp} className="google-acc"><img src="google.png" alt="ggle"/></button>
+          </div> 
+  
+      <p className="no-acc">No Account? <span onClick={handleLogin} >Register now</span>
+      </p>
+
+      </div>
+    </div>  
   );
 }
 
