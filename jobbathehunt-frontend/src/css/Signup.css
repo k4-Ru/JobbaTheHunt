@@ -1,127 +1,271 @@
-* {
-    margin: 0 auto;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Lexend Deca', sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Jersey+20&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+20&family=Lexend+Deca:wght@100..900&display=swap');
 
-body {
+*{
+    box-sizing:border-box;
+    margin:0 ;
+    padding: 0;
+}
+    
+body{
+    background: #E2F9B8;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: #E2F9B8;
+}
 
-    background-image: url('triangle-left.png'), url('triangle-right.png');
-    background-repeat: no-repeat, no-repeat;
-    background-position: left center, right center;
+.register-container { 
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
 }
 
 
-.container {
-    text-align: center;
-}
 
-.title {
-    font-size: 4.5rem;
-    font-family: 'Jersey 20', sans-serif;
-    letter-spacing: 3px;
-    color: #454242;
-}
-
-
-.form-box {
-    position: relative;
-    background: rgba(86, 78, 88, 0.4); 
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-    width: 350px;
-}
-
-.egg-parachute {
+.register-bg1, .register-bg2 {
     position: absolute;
-    top: -100px; 
-    left: -2%;
-    transform: translateX(-50%);
-    width: 250px; 
-    z-index: -8; 
+    top: 0;
+    height: 100vh; 
+    background-size: cover; 
+    background-repeat: no-repeat;
 }
 
-
-.form-box h2 {
-    background-color: rgba(209, 96, 20, 0.8);
-    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3);
-    color: #E2F9B8;
-    padding: 10px;
-    border-radius: 10px;
-    width: 70%;
-    text-align: center;
-    display: block;
-    margin: 0 auto;
+.register-bg1 {
+    left: 0;
+    width: 200px; 
+    background-image: url("C:\Users\admin\Desktop\JobbaTheHunt-main\jobbathehunt-frontend\public\register-bg1.png");/*palitan nalng ung src ng img pag irurun na*/
 }
 
-form input {
+.register-bg2 {
+    right: 0;
+    width: 249.7px;
+    background-image: url("C:\Users\admin\Desktop\JobbaTheHunt-main\jobbathehunt-frontend\public\register-bg2.png");/*palitan nalng ung src ng img pag irurun na*/
+}
+.eggshoot {
+    z-index: 2;
+    position: absolute;
     width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 10px;
-    outline: none;
-    background: linear-gradient(white, white) padding-box, 
-                linear-gradient(to right, #2F243A, #BEBBBB) border-box;
-    border: 2px solid transparent;
+    top: 8%;
+    left: 29.5%;
+    max-width: 170px;
+}
+@media (max-width:600px){
+    .eggshoot{
+        top: 15%;
+        left: 1%;
+        max-width: 120px;
+    }
+    .register-bg1 {
+        left: -10%;
+        width: 161.889px;
+    height: 973.291px; 
+    }
+
+    .register-bg2 {
+        width: 250.889px;
+        height: 930.291px; 
+    }
+
+
+}
+img {
+    width: 100%; 
+    height: auto; 
+}
+.register-title{
+    position: relative;
+    padding: 5px;
+    text-align: center;
+    color: #454242;
+    font-family: "Jersey 20";
+    font-size: 100px;
+    font-weight: 400;
+    line-height:60px;
+
 }
 
-.divider {
+.register-title span{
+    margin-bottom: 5px;
+    margin-top: 30px;
+    display: block;
+    font-size: 50px;
+    font-weight: 400;
+    color: #454242;
+    line-height: 2px;
+}
+.register-panel{
+    padding: 20px;
+    width: 370px;
+    height: 465px;
+    text-align: center;
+    font-family: "Lexend Deca";
+    border-radius: 20px;
+    background: rgba(86, 78, 88, 0.42);
+    margin-bottom: 8px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.25);
+    fill: rgba(86, 78, 88, 0.42);
+    filter: drop-shadow(0px 20px 50px rgba(0, 0, 0, 0.25));
+}
+.start{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    height: 50px;
+    background-color: rgba(209, 96, 20, 0.70);
+    color: var(--sidebar-txt-color, #E2F9B8);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset;
+    font-family: "Lexend Deca"; 
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 600;
+    border-radius: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+}
+.register-box {
+    font-family: "Lexend Deca";
+    width: 95%; 
+    padding: 10px; 
+    border-radius: 8px; 
+    background: #F2EFE9;
+    border:2px linear-gradient(to right, #2F243A, #BEBBBB);
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset;
+    outline: none;
+    margin-top: 10px;
+    padding-left: 10px;
+    padding-left: 10px;
+    color: #564E58;
+    font-family: "Lexend Deca";
+
+}
+.password-container {
+    position: relative; 
+}
+.password-input {
+    padding-right: 30px; 
+
+}
+.register-eyecon {
+    position: absolute;
+    top: 60%;
+    right: 20px; 
+    transform: translateY(-50%); 
+    cursor: pointer;
+    width: 20px; 
+    height: 20px;
+}
+.forget{
+    font-size: 12px;
+    width: 96%;
+    text-align: right;
+    cursor: pointer;
+}
+.signup-btn{
+    font-size: 12px;
+    font-family: "Lexend Deca";
+    border: none;
+    width: 65%;
+    height: 45px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #BBCE8A;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    margin-bottom: 10px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+.continue{
     display: flex;
     align-items: center;
     text-align: center;
-    margin: 15px 0;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    font-family: "Lexend Deca";
+    margin-bottom: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+    gap: 10px;
+    
 }
-
-.divider::before,
-.divider::after {
+.continue::before,.continue:after{
     content: "";
     flex: 1;
     height: 1px;
-    background: black;
-    margin: 5px;
+    background: black; 
+}
+.other-acc{
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 15px;
 }
 
-
-
-button {
-    width: 80%;
-    padding: 10px;
-    background-color: #cfbb8f;
-    color: #583e07;
-    border: none;
-    border-radius: 5px;
-    margin: 8px 0;
-}
-
-button:hover {
-    background-color: #A65D2D;
-    color: white;
-}
-
-.social-icons img {
+.microsoft-acc{
+    display: flex;
     width: 40px;
-    margin: 5px;
+    height: 40px;
+    padding: 4px;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1px solid #BBACFB;
+    background: #FFF;
     cursor: pointer;
 }
-
-p {
-    margin: 10px 0;
+.google-acc{
+    display: flex;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1px solid #BBACFB;
+    background: #FFF;
+    cursor: pointer;
 }
-
-a {
-    color: #113069;
-    text-decoration: none;
+.no-acc{
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    font-family: "Lexend Deca";
 }
-
-a:hover {
-    text-decoration: underline;
+.no-acc span{
+    cursor: pointer;
+    color: #0E1779;
+text-align: center;
+font-family: "Lexend Deca";
+font-size: 12px;
+font-style: normal;
+font-weight: 400;
+text-decoration-line: underline;
+text-decoration-style: solid;
+text-decoration-skip-ink: auto;
+text-decoration-thickness: auto;
+text-underline-offset: auto;
+text-underline-position: from-font;
 }
+@media (max-width: 600px) {
+    .login-panel {
+        padding: 15px; 
+        max-width: 90%;
+    }
+    .welcome-txt {
+        font-size: 1.2rem; 
+    }
 
+    .input-box {
+        padding: 8px; 
+    }
+
+    .login-btn {
+        padding: 8px;
+    }
+}
