@@ -10,11 +10,11 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    background: #E2F9B8;
 
-    background-image: url('signup_bg.svg');
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
+    background-image: url('triangle-left.png'), url('triangle-right.png');
+    background-repeat: no-repeat, no-repeat;
+    background-position: left center, right center;
 }
 
 
