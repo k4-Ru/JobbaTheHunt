@@ -139,13 +139,13 @@ function Register() {
 
 
       {errorMessages.length > 0 && (
-      <div className="chat-container-register">
+      <div className="error-register">
         <div className="chat-text">
           {errorMessages.map((message, index) => (
             <p key={index}>{message}</p>
           ))}
         </div>
-        <div className="chat-bubble-tail-register"></div>
+        <div className="error-bubble-tail-register"></div>
       </div>
     )}
 

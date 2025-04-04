@@ -305,7 +305,7 @@ text-underline-position: from-font;
 
 
 
-.chat-container-register {
+.error-register {
     font-family: "Lexend Deca";
     position: fixed; 
     top: 60%; 
@@ -322,7 +322,7 @@ text-underline-position: from-font;
 }
 
 
-.chat-bubble-tail-register {
+.error-bubble-tail-register {
     position: absolute;
     top: -90px; 
     left: 45%; 
@@ -349,13 +349,13 @@ text-underline-position: from-font;
 }
 
 @media (max-width: 600px) {
-    .chat-container-register {
+    .error-register {
         top: 18%;
         left: 20%; 
         max-width: 270px;
     }
 
-    .chat-bubble-tail {
+    .error-bubble-tail {
         top: 50%;
         left: -12px;
         

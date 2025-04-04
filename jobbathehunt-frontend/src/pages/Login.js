@@ -89,7 +89,7 @@ function Login() {
         <p className="welcome-msg">Ready to ace your next interview?<span>Let's get started!</span></p>
 
         {errorMessages.length > 0 && (
-      <div className="chat-container-login">
+      <div className="error-container-login">
         <div className="chat-text">
           {errorMessages.map((message, index) => (
             <p key={index}>{message}</p>
