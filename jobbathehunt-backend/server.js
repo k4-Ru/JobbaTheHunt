@@ -298,6 +298,10 @@ app.post("/user-preferences", async (req, res) => {
 
 
 
+
+
+
+
 // Get user preferences
 app.get("/user-preferences/:userId", async (req, res) => {
   try {
@@ -355,8 +359,6 @@ app.get("/auth/user/:id", async (req, res) => {
 
 
 
-
-
 //homepage section
 
 
@@ -382,7 +384,7 @@ app.get("/job-role/:id", async (req, res) => {     //job by id
     const [result] = await db.execute("SELECT * FROM job_roles WHERE id = ?", [id]);
 
     if (result.length === 0) {
-      return res.status(404).json({ error: "Job role not found" });
+      return res.status(404).json({ error: "Job role not found" }); 
     }
 
     res.status(200).json(result[0]);
