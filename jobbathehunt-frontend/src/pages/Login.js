@@ -26,6 +26,16 @@ function Login() {
     return () => unsubscribe();
   }, [navigate]);
 
+
+
+
+
+
+
+
+
+
+  
   const handleLogin = async () => {
     const errors = [];
 
@@ -60,22 +70,47 @@ function Login() {
           msg = "Login failed. Please try again.";
       }
 
-      setErrorMessages([msg]);  // Set the error message state
+      setErrorMessages([msg]); 
     }
   };
+
+
+
+
+
+
+
+
+
+
+
+
 
   const handleGoogleSignIn = async () => {
     try {
       await signUpWithGoogle();
       navigate("/home"); 
     } catch (error) {
-      setErrorMessages([error.message]);  // Store error if Google sign-in fails
+      setErrorMessages([error.message]); 
     }
   };
+
+
+
+
 
   const handleRegister = () => {
     navigate("/register");
   };
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="login-container" >
@@ -127,7 +162,7 @@ function Login() {
               />
             </div>
 
-            <div className="forget">Forget Password?</div>
+            <div className="forget">Forgot Password?</div>
 
             <div className="login-btm"> 
               <button onClick={handleLogin} className="login-btn">Login</button>
