@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/register.css";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { sendEmailVerification } from "firebase/auth";
+
+
+
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -18,67 +22,94 @@ function Register() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-  const handleRegister = async () => {
-    const errors = [];
-
-    if (!email || !password || !name) {
-      errors.push("Please fill in all fields.");
+    useEffect(() => {
+    if (auth.currentUser && auth.currentUser.emailVerified) {
+      console.log("User is already logged in and verified. Redirecting to /home...");
+      navigate("/home");
     }
+  }, [navigate]);
 
-    if (password !== confirmPassword) {
-      errors.push("Passwords do not match.");
-    }
 
-    if (password.length < 8) errors.push("Password must be at least 8 characters.");
-    if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
-    if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
-    if (!/[0-9]/.test(password)) errors.push("Password must contain at least one number.");
 
-    if (errors.length > 0) {
-      setErrorMessages(errors);
-      return;
-    }
 
-    setLoading(true);
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      await updateProfile(firebaseUser, { displayName: name });
 
-      const response = await fetch("http://localhost:5000/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firebase_uid: firebaseUser.uid,
-          email,
-          name,
-          profile_pic: null,
-        }),
-      });
 
-      if (response.ok) {
-        navigate("/home");
-      } else {
-        setErrorMessages(["Failed to store user in the database. Please try again."]);
-      }
 
-    } catch (error) {
-      setErrorMessages([error.message]);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+
+               const handleRegister = async () => {
+          const errors = [];
+        
+          if (!email || !password || !name) {
+            errors.push("Please fill in all fields.");
+          }
+        
+          if (password !== confirmPassword) {
+            errors.push("Passwords do not match.");
+          }
+        
+          if (password.length < 8) errors.push("Password must be at least 8 characters.");
+          if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
+          if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
+          if (!/[0-9]/.test(password)) errors.push("Password must contain at least one number.");
+        
+          if (errors.length > 0) {
+            setErrorMessages(errors);
+            return;
+          }
+        
+          setLoading(true);
+        
+          try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const firebaseUser = userCredential.user;
+        
+            // Update the user's display name
+            await updateProfile(firebaseUser, { displayName: name });
+        
+            // Send email verification
+            await sendEmailVerification(firebaseUser);
+        
+            console.log("Verification email sent. Logging out the user...");
+        
+            // Store the user in the database
+            const response = await fetch("http://localhost:5000/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                firebase_uid: firebaseUser.uid,
+                email,
+                name,
+                profile_pic: null, // You can add a default profile picture if needed
+              }),
+            });
+        
+            if (response.ok) {
+              console.log("User stored in the database successfully.");
+            } else {
+              console.error("Failed to store user in the database.");
+            }
+        
+        
+            navigate("/verification-sent", { state: { email } });          } catch (error) {
+            setErrorMessages([error.message]);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -168,11 +199,12 @@ function Register() {
         />
 
 
+
         <input
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value.toLowerCase())} 
           className="register-box"
         />
 

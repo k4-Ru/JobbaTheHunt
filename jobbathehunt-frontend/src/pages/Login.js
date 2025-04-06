@@ -138,13 +138,22 @@ function Login() {
           <p>Redirecting to Home...</p>
         ) : (
           <>
-            <input 
+
+
+
+
+
+              <input 
               type="email"
               placeholder="Email Address" 
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase())}  //gawin lowercase
               className="input-box"
             />
+
+
+
+
 
             <div className="password-container">
               <input
@@ -162,7 +171,17 @@ function Login() {
               />
             </div>
 
-            <div className="forget">Forgot Password?</div>
+
+
+            <div 
+              className="forget" 
+              onClick={() => navigate("/update-password")}
+            >
+              Forgot Password?
+            </div>
+
+
+
 
             <div className="login-btm"> 
               <button onClick={handleLogin} className="login-btn">Login</button>

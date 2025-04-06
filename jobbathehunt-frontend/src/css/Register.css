@@ -50,7 +50,7 @@ body{
 }
 .eggshoot {
     z-index: 2;
-    position: fixed;
+    position: absolute;
     width: 100%;
     top: 8%;
     left: 29.5%;
