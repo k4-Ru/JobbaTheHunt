@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, signUpWithGoogle } from "./auth";
+import { loginUser, signUpWithGoogle } from "../components/auth";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth"; 
 import "../css/login.css";
@@ -11,7 +11,7 @@ function Login() {
   const [user, setUser] = useState(null);    // store the authenticated user
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const [errorMessages, setErrorMessages] = useState([]);  // To store error messages
+  const [errorMessages, setErrorMessages] = useState([]);  //error messages
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

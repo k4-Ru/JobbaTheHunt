@@ -31,6 +31,7 @@ function VerificationSent() {
           }
         } else {
           console.log("Email not verified yet.");
+          console.log("User email:", user.email);  //testing purpose, delete pag mag deploy na
         }
       } catch (error) {
         console.error("Error checking verification status:", error);
