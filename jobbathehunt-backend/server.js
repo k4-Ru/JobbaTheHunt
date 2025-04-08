@@ -16,6 +16,8 @@ app.use(express.json());
 
 
 
+
+
 // Firebase Admin SDK Initialization
 const firebaseConfigPath = process.env.FIREBASE_CREDENTIALS
   ? path.resolve(process.env.FIREBASE_CREDENTIALS)
@@ -24,6 +26,8 @@ const firebaseConfigPath = process.env.FIREBASE_CREDENTIALS
 admin.initializeApp({
   credential: admin.credential.cert(require(firebaseConfigPath)),
 });
+
+
 
 
 
@@ -60,6 +64,9 @@ admin.initializeApp({
 
 
 
+
+
+
 //pfp ng user 
 app.get("/get-pfp/:uid", async (req, res) => {
   const { uid } = req.params;
@@ -88,6 +95,8 @@ app.get("/get-pfp/:uid", async (req, res) => {
 
 
 
+
+
 app.post("/register", async (req, res) => {
   const { firebase_uid, email, name, profile_pic = null } = req.body;
 
@@ -103,7 +112,7 @@ app.post("/register", async (req, res) => {
     );
 
     if (existingUser.length > 0) {
-      return res.status(409).json({ error: "User already exists" });
+      return res.status(409).json({ error: "User already exists, Login instead." });
     }
 
     const query = `
@@ -138,7 +147,6 @@ app.post("/register", async (req, res) => {
 
 
 
-
 app.post("/auth/google", async (req, res) => {
   try {
     const { firebase_uid, email, name, profile_pic } = req.body;
@@ -147,15 +155,66 @@ app.post("/auth/google", async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Store user
-    const [result] = await global.db.execute(
-      "INSERT INTO users (firebase_uid, email, name, profile_pic) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), profile_pic = VALUES(profile_pic)",
-      [firebase_uid, email, name, profile_pic]
-    );
+    // Store or update the user in the database
+    const query = `
+      INSERT INTO users (firebase_uid, email, name, profile_pic, verified)
+      VALUES (?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE 
+        name = VALUES(name), 
+        profile_pic = VALUES(profile_pic), 
+        verified = VALUES(verified)
+    `;
+
+    const values = [firebase_uid, email, name, profile_pic, 1]; // Set verified = 1 for Google users
+
+    await global.db.execute(query, values);
 
     res.status(200).json({ message: "User stored successfully" });
   } catch (error) {
     console.error("Google Auth Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+app.post("/update-verification", async (req, res) => {
+  const { firebase_uid } = req.body;
+
+  if (!firebase_uid) {
+    return res.status(400).json({ error: "Firebase UID is required." });
+  }
+
+  try {
+    console.log(`Updating verification status`);
+
+    // Check if the user exists and is already verified
+    const [user] = await db.execute("SELECT verified FROM users WHERE firebase_uid = ?", [firebase_uid]);
+
+    if (user.length === 0) {
+      console.error(`No user found with Firebase UID: ${firebase_uid}`);
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    if (user[0].verified) {
+      console.log(`User ${firebase_uid} is already verified.`);
+      return res.status(200).json({ message: "User is already verified." });
+    }
+
+    // Update the verification status
+    const query = "UPDATE users SET verified = 1 WHERE firebase_uid = ?";
+    await db.execute(query, [firebase_uid]);
+
+    // Return a simple success response
+    res.status(200).json({ message: "User verification status updated successfully." });
+  } catch (error) {
+    console.error("Error updating verification status:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -183,25 +242,35 @@ app.post("/check-preferences", async (req, res) => {
   }
 
   try {
-    //kunin Firebase UID
-    const [userResult] = await db.execute("SELECT id FROM users WHERE firebase_uid = ?", [firebase_uid]);
+    // Use a JOIN to fetch the user's preferences in a single query
+    const [result] = await db.execute(
+      `
+      SELECT u.id AS userId, u.verified, COUNT(p.id) AS preferencesCount
+      FROM users u
+      LEFT JOIN user_preferences p ON u.id = p.user_id
+      WHERE u.firebase_uid = ?
+      GROUP BY u.id
+      `,
+      [firebase_uid]
+    );
 
-    if (userResult.length === 0) {
+    if (result.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const userId = userResult[0].id;
+    const { userId, verified, preferencesCount } = result[0];
 
-    //Check 
-    const [preferencesResult] = await db.execute("SELECT * FROM user_preferences WHERE user_id = ?", [userId]);
+    if (!verified) {
+      return res.status(403).json({ error: "User is not verified" });
+    }
 
-    res.json({ hasPreferences: preferencesResult.length > 0 });
+    res.json({ hasPreferences: preferencesCount > 0 });
   } catch (error) {
     console.error("Error checking preferences:", error);
-    res.status(500).json({ error
-    });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 
 
@@ -253,6 +322,8 @@ app.get("/user-preferences/:firebase_uid", async (req, res) => {
 
 
 
+
+
 //chooseYourPath
 app.post("/user-preferences", async (req, res) => {
   try {
@@ -287,6 +358,10 @@ app.post("/user-preferences", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
+
+
 
 
 
@@ -351,8 +426,6 @@ app.get("/auth/user/:id", async (req, res) => {
 
 
 
-
-
 //homepage section
 
 
@@ -378,7 +451,7 @@ app.get("/job-role/:id", async (req, res) => {     //job by id
     const [result] = await db.execute("SELECT * FROM job_roles WHERE id = ?", [id]);
 
     if (result.length === 0) {
-      return res.status(404).json({ error: "Job role not found" });
+      return res.status(404).json({ error: "Job role not found" }); 
     }
 
     res.status(200).json(result[0]);

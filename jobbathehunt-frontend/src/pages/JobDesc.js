@@ -5,7 +5,7 @@ import Sidebar from "../components/sidebar";
 
 const JobDesc = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +21,6 @@ const JobDesc = () => {
       }
     };
 
-
     fetchJob();
   }, [id]);
 
@@ -33,22 +32,56 @@ const JobDesc = () => {
     return <p>Job not found</p>;
   }
 
+
+  // hatiin for each line
+  const lines = job.description.split("\n");
+
   return (
-    <div style={{ display: "flex" }}>  
-    
-     <Sidebar/>
+    <div style={{ display: "flex" }}>
+      <Sidebar />
 
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: "20px", flex: 1 }}>
         <h1>{job.role_name}</h1>
-      <p>{job.description}</p>
 
 
+        {/* roadmap, display if meron*/}
+        {job.roadmap && (
+          <p>
+            <a href={job.roadmap} target="_blank" rel="noopener noreferrer">
+              {job.roadmap}
+            </a>
+          </p>
+        )}
 
-      <button onClick={() => navigate("/interview")} style={{ marginTop: "20px", cursor: "pointer" }}>
-        Back
-      </button>
+        <div>
+          {lines.map((line, index) =>
+            line.startsWith("-") ? (
+              <li key={index}>{line.substring(1).trim()}</li> // Bullet point if nagsisimula sa "-"
+            ) : (
+              <p key={index}>{line}</p> // Regular text
+            )
+          )}
+        </div>
+
+    
+
+        <div style={{ marginTop: "20px" }}>
+          <button
+            onClick={() => navigate("/interview")}
+            style={{ marginRight: "10px", padding: "10px 20px", cursor: "pointer" }}
+          >
+            Back
+          </button>
+
+         
+          <button
+            onClick={() => navigate("/speech")}
+            style={{ padding: "10px 20px", cursor: "pointer"}}
+          >
+            Start Interview
+          </button>
+        </div>
       </div>
-      
     </div>
   );
 };
