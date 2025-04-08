@@ -9,13 +9,12 @@ function VerificationSent() {
     const checkVerificationStatus = async () => {
       try {
         console.log("Checking verification status...");
-        await auth.currentUser.reload(); // Refresh the user state
+        await auth.currentUser.reload(); 
         const user = auth.currentUser;
 
         if (user?.emailVerified) {
           console.log("Email verified!");
 
-          // Call the backend to update the verification status in the database
           const response = await fetch("http://localhost:5000/update-verification", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -24,9 +23,9 @@ function VerificationSent() {
 
           if (response.ok) {
             console.log("Verification status updated in the database.");
-            window.location.reload(); // Refresh the page
+            window.location.reload();
           } else {
-            console.error("Failed to update verification status in the database.");
+            console.error("Failed to update verification status in the database.");//console messages, can be deleted
             alert("There was an issue updating your verification status. Please try again.");
           }
         } else {
@@ -39,10 +38,10 @@ function VerificationSent() {
       }
     };
 
-    // Start polling every 5 seconds
+    // every 5 seconds
     const interval = setInterval(checkVerificationStatus, 5000);
 
-    // Cleanup interval on component unmount
+    // Cleanup interval
     return () => clearInterval(interval);
   }, [navigate]);
 
@@ -50,7 +49,7 @@ function VerificationSent() {
     <div className="verification-sent-container">
       <h1>Verification Email Sent</h1>
       <p>
-        A verification link has been sent to your email. Please check your email inbox and verify your account before proceeding.
+        A verification link has been sent to your email. Please check your email inbox.
       </p>
       <p>We are checking your verification status. This may take a few moments...</p>
       <button
