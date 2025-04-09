@@ -107,20 +107,33 @@ app.post("/register", async (req, res) => {
   try {
     // Check if the user already exists
     const [existingUser] = await db.execute(
-      "SELECT id FROM users WHERE firebase_uid = ?",
-      [firebase_uid]
+      "SELECT id, verified FROM users WHERE email = ?",
+      [email]
     );
 
     if (existingUser.length > 0) {
-      return res.status(409).json({ error: "User already exists, Login instead." });
+      const user = existingUser[0];
+
+      if (user.verified === 0) {
+        // If the user exists but is not verified, resend the verification email
+        console.log(`Resending verification email to ${email}`);
+        const link = await admin.auth().generateEmailVerificationLink(email);
+        return res.status(200).json({
+          message: "Verification email resent. Please check your inbox.",
+        });
+      } else {
+        // If the user is already verified, return an error
+        return res.status(409).json({ error: "Account already exists. Please log in." });
+      }
     }
 
+    // If the user does not exist, create a new user
     const query = `
       INSERT INTO users (firebase_uid, email, name, profile_pic, verified)
       VALUES (?, ?, ?, ?, ?)
     `;
 
-    const values = [firebase_uid, email, name, profile_pic, 0]; // verified = 0 ang default
+    const values = [firebase_uid, email, name, profile_pic, 0]; // verified = 0 by default
 
     await db.execute(query, values);
 
@@ -132,10 +145,6 @@ app.post("/register", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-
-
-
 
 
 
