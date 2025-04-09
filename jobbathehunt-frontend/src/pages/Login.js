@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, signUpWithGoogle } from "./auth";
+import { loginUser, signUpWithGoogle } from "../components/auth";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth"; 
 import "../css/login.css";
@@ -11,7 +11,7 @@ function Login() {
   const [user, setUser] = useState(null);    // store the authenticated user
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const [errorMessages, setErrorMessages] = useState([]);  // To store error messages
+  const [errorMessages, setErrorMessages] = useState([]);  //error messages
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -35,22 +35,35 @@ function Login() {
 
 
 
-  
-  const handleLogin = async () => {
+   const handleLogin = async () => {
     const errors = [];
-
+  
     if (!email || !password) {
       errors.push("Please fill out both fields.");
     }
-
+  
     if (errors.length > 0) {
       setErrorMessages(errors);
       return;
     }
-
+  
     try {
-      await loginUser(email, password);
-      navigate("/home");
+      const userCredential = await loginUser(email, password);
+      const firebaseUser = userCredential.user;
+  
+      // Check if the user's email is verified
+      if (!firebaseUser.emailVerified) {
+        // Send a verification email
+        await firebaseUser.sendEmailVerification();
+        alert("Your account is not verified. A verification email has been sent to your inbox.");
+  
+        // Redirect to the VerificationSent page
+        navigate("/verification-sent", { state: { email } });
+        return;
+      }
+  
+      // If the account is verified, navigate to /choose
+      navigate("/choose");
     } catch (error) {
       let msg = "";
       switch (error.code) {
@@ -69,14 +82,10 @@ function Login() {
         default:
           msg = "Login failed. Please try again.";
       }
-
-      setErrorMessages([msg]); 
+  
+      setErrorMessages([msg]);
     }
   };
-
-
-
-
 
 
 
