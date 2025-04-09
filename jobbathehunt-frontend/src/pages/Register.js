@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/register.css";
+import "../css/Register.css";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -38,45 +38,44 @@ function Register() {
 
 
 
-               const handleRegister = async () => {
-          const errors = [];
+  const handleRegister = async () => {
+    const errors = [];
         
-          if (!email || !password || !name) {
-            errors.push("Please fill in all fields.");
-          }
+    if (!email || !password || !name) {
+      errors.push("Please fill in all fields.");
+    }
+   
+      if (password !== confirmPassword) {
+        errors.push("Passwords do not match.");
+        }
         
-          if (password !== confirmPassword) {
-            errors.push("Passwords do not match.");
-          }
+        if (password.length < 8) errors.push("Password must be at least 8 characters.");
+        if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
+        if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
+        if (!/[0-9]/.test(password)) errors.push("Password must contain at least one number.");
         
-          if (password.length < 8) errors.push("Password must be at least 8 characters.");
-          if (!/[A-Z]/.test(password)) errors.push("Password must contain at least one uppercase letter.");
-          if (!/[a-z]/.test(password)) errors.push("Password must contain at least one lowercase letter.");
-          if (!/[0-9]/.test(password)) errors.push("Password must contain at least one number.");
+        if (errors.length > 0) {
+          setErrorMessages(errors);
+          return;
+        }
         
-          if (errors.length > 0) {
-            setErrorMessages(errors);
-            return;
-          }
+        setLoading(true);
         
-          setLoading(true);
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const firebaseUser = userCredential.user;
         
-          try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const firebaseUser = userCredential.user;
+          await updateProfile(firebaseUser, { displayName: name });
         
-            // Update the user's display name
-            await updateProfile(firebaseUser, { displayName: name });
+            // email verification
+          await sendEmailVerification(firebaseUser);
         
-            // Send email verification
-            await sendEmailVerification(firebaseUser);
-        
-            console.log("Verification email sent. Logging out the user...");
+          console.log(`Verification email sent to ${email}`);
         
             // Store the user in the database
-            const response = await fetch("http://localhost:5000/register", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+          const response = await fetch("http://localhost:5000/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 firebase_uid: firebaseUser.uid,
                 email,
@@ -92,9 +91,18 @@ function Register() {
             }
         
         
-            navigate("/verification-sent", { state: { email } });          } catch (error) {
-            setErrorMessages([error.message]);
-          } finally {
+          navigate("/verification-sent", { state: { email } });
+          } catch (error) {
+            let customMessage = "";
+            if (error.code === "auth/email-already-in-use") {
+              customMessage = "This email is already in use. If you haven't verified your email, please resend the verification email.";
+            } else if (error.code === "auth/weak-password") {
+              customMessage = "Your password is too weak. Please use a stronger password.";
+            } else {
+              customMessage = error.message;
+            }
+            setErrorMessages([customMessage]);
+          }finally {
             setLoading(false);
           }
         };
@@ -150,10 +158,15 @@ function Register() {
 
 
 
-  const gotoLogin = () => {
-    navigate("/login");
+  const gotoLogin = async () => {
+    try {
+      await auth.signOut(); // Log out the current user
+      console.log("User logged out successfully.");
+      navigate("/login"); // Redirect to the login page
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
-
 
 
 
