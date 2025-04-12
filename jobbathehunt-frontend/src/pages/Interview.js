@@ -47,7 +47,8 @@ const Interview = () => {
           {jobRoles.map((job) => (
             <button
               key={job.id}
-              onClick={() => SelectedJob(job.id)}   // Go to JobDetails page
+              onClick={() => 
+                SelectedJob(job.id)}  // Go to JobDetails page
               style={{ margin: "10px", padding: "10px 20px", cursor: "pointer" }}
             >
               {job.role_name}

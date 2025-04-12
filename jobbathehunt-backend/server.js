@@ -5,6 +5,8 @@ const path = require("path");
 const admin = require("firebase-admin");
 const mysql = require("mysql2/promise");
 
+const  OpenAIApi = require("openai");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -12,6 +14,15 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+
+
+
+const openai = new OpenAIApi(
+  ({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+);
 
 
 
@@ -174,7 +185,7 @@ app.post("/auth/google", async (req, res) => {
         verified = VALUES(verified)
     `;
 
-    const values = [firebase_uid, email, name, profile_pic, 1]; // Set verified = 1 for Google users
+    const values = [firebase_uid, email, name, profile_pic, 1];
 
     await global.db.execute(query, values);
 
@@ -469,6 +480,197 @@ app.get("/job-role/:id", async (req, res) => {     //job by id
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/api/interview", async (req, res) => {
+  const { jobRole, userId } = req.body;
+
+  console.log("Received data:", { jobRole, userId });
+
+  try {
+    if (!jobRole || !userId) {
+      return res.status(400).json({ error: "jobRole and userId are required." });
+    }
+
+
+    // Proceed without checking if the jobRole exists, since it's picked by the user
+    const [roleRow] = await db.query("SELECT id FROM job_roles WHERE role_name = ?", [jobRole]);
+    const jobRoleId = roleRow.length > 0 ? roleRow[0].id : null;
+
+    if (!jobRoleId) {
+      return res.status(400).json({ error: "Invalid job role." });
+    }
+
+
+
+
+    // Check for an ongoing session
+    const [sessions] = await db.query(
+      "SELECT * FROM interview_sessions WHERE user_id = ? AND status = 'ongoing'",
+      [userId]
+    );
+
+
+    const existingSession = sessions[0];
+    let sessionId;
+
+
+
+    if (!existingSession) {
+      // Create a new session if no ongoing one exists
+      const [result] = await db.query(
+        "INSERT INTO interview_sessions (user_id, job_role_id, status) VALUES (?, ?, ?)",
+        [userId, jobRoleId, 'ongoing']
+      );
+
+
+
+
+
+      sessionId = result.insertId;
+      console.log("New session created with ID:", sessionId);
+
+      const firstQuestion = `You are an interviewer for the role of ${jobRole}. Start by asking the first question.`;
+      await db.query(
+        "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
+        [sessionId, 'system', firstQuestion]
+      );
+
+      return res.json({ question: firstQuestion, sessionId });
+    } else {
+      sessionId = existingSession.id;
+    }
+
+
+
+
+
+    // If there's a user response, insert it
+    if (req.body.userResponse) {
+      await db.query(
+        "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
+        [sessionId, 'user', req.body.userResponse]
+      );
+    }
+
+
+    // Generate the next question using OpenAI
+    const prompt = req.body.userResponse
+      ? `You are an interviewer. Based on the user's response: "${req.body.userResponse}", ask the next question.`
+      : `You are an interviewer for the role of ${jobRole}. Start by asking the first question.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "system", content: prompt }],
+    });
+
+    console.log(`Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
+    const nextQuestion = response.choices[0].message.content;
+    console.log("Next Question:", nextQuestion);
+
+    await db.query(
+      "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
+      [sessionId, 'system', nextQuestion]
+    );
+
+    res.json({ question: nextQuestion, sessionId });
+  } catch (error) {
+    console.error("Error in /api/interview:", error.message || error);
+
+    
+    if (error.response?.status === 429) {
+      return res.status(429).json({ error: "Quota exceeded. Please try again later." });
+    } else if (error.response?.status === 400) {
+      return res.status(400).json({ error: "Invalid request to OpenAI API." });
+    } else {
+      return res.status(500).json({ error: "Failed to generate question. Please try again later." });
+    }
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*    useEffect(() => {
+  const handleBeforeUnload = (event) => {
+    event.preventDefault();
+    event.returnValue = ""; // Required for modern browsers to show the confirmation dialog
+  };
+
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener("beforeunload", handleBeforeUnload); // Cleanup on unmount
+  };
+}, []);     */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
