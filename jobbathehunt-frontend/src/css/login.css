@@ -51,6 +51,10 @@ body{
         top: 23%;
         left: 1%;
     }
+    .triangle-bg{
+        bottom: -1%;
+        left: 1%;
+    }
 }
 img {
     width: 100%; 
@@ -119,6 +123,11 @@ img {
     background-color: #f2efe9;
     outline: none;
     margin-bottom: 10px; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.input-box:focus    {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 .password-container {
     position: relative; 
@@ -135,12 +144,16 @@ img {
     width: 20px; 
     height: 20px;
 }
+
+
 .forget{
     font-size: 12px;
     width: 96%;
     text-align: right;
     cursor: pointer;
 }
+
+
 .login-btn{
     font-size: 12px;
     font-family: "Lexend Deca";
@@ -155,7 +168,14 @@ img {
     margin-bottom: 30px;
     margin-top: 20px;
     cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;  
 }
+.login-btn:hover{
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+
 .continue{
     display: flex;
     align-items: center;
@@ -176,13 +196,16 @@ img {
     height: 1px;
     background: black; 
 }
+
+
 .other-acc{
     display: inline-flex;
     align-items: center;
     gap: 13px;
-    margin-bottom: 20px;
-    
+    margin-bottom: 20px;   
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 
 .microsoft-acc{
     display: flex;
@@ -195,6 +218,7 @@ img {
     border: 1px solid #BBACFB;
     background: #FFF;
     cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .google-acc{
     display: flex;
@@ -207,6 +231,16 @@ img {
     border: 1px solid #BBACFB;
     background: #FFF;
     cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.microsoft-acc:hover {
+    transform: scale(1.5);   
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.google-acc:hover{
+    transform: scale(1.5);   
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 .no-acc{
     font-size: 12px;
@@ -219,17 +253,17 @@ img {
 .no-acc span{
     cursor: pointer;
     color: #0E1779;
-text-align: center;
-font-family: "Lexend Deca";
-font-size: 12px;
-font-style: normal;
-font-weight: 400;
-text-decoration-line: underline;
-text-decoration-style: solid;
-text-decoration-skip-ink: auto;
-text-decoration-thickness: auto;
-text-underline-offset: auto;
-text-underline-position: from-font;
+    text-align: center;
+    font-family: "Lexend Deca";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: auto;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font; 
 }
 @media (max-width: 600px) {
     .login-panel {
@@ -309,7 +343,7 @@ text-underline-position: from-font;
 
     animation: bounceUp 0.3s ease-out forwards;
 }
-
+  
 
 
   @keyframes bounceUp {
