@@ -42,6 +42,7 @@ function UpdatePassword() {
     <div className="reset-password-container">
        <div className="triangle-reset1"><img src="triangle sa bg.png" alt="bg1"/></div>
        <div className="triangle-reset2"><img src="triangle sa bg1.png" alt="bg2"/></div>
+       <div className="egg-reset"><img src="eggshoot.png"></img></div>
       <div className="reset-panel">
       <h1>Reset Your Password</h1>
       <p>Enter your email address to receive a password reset link.</p>
