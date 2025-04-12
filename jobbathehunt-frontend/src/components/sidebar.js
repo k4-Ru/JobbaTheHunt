@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useLocation } from "react-router-dom";
 import { auth } from "../firebase";
 import axios from "axios";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import "../css/sidebar.css"
 
 const Sidebar = () => {
   const [profileImage, setProfileImage] = useState("");
   const [loading, setLoading] = useState(true);  // Loading state
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -47,27 +49,31 @@ const Sidebar = () => {
   if (loading) {
     return <p>Loading...</p>;
   }
+  const isHomeActive = location.pathname === "/Home";
 
+  console.log(location.pathname);
   return (
-    <div>
-      <div>
+    <div className="sidebar">
+       <div className="triangle-home2"><img src="triangle sa bg1.png" alt="bg2"/></div>
+      <div className="sidebar-profile">
         {profileImage ? (
-          <img src={profileImage} alt="Profile" width="80" height="80" style={{ borderRadius: "50%" }} />
+          <img src={profileImage} alt="Profile" />
         ) : (
           <p>Loading...</p>
         )}
         <hr />
+      
       </div>
-
-
+      <div className="sidebar-profile-line"></div>
+     
 
       <nav>
         <ul>
-          <li><Link to="/Home">Home</Link></li>
-          <li><Link to="/interview">Interview</Link></li>
-          <li><Link to="/progress">Progress</Link></li>
-          <li><Link to="/settings">Settings</Link></li>
-          <li><button onClick={handleLogout}>Log out</button></li>
+          <li><Link to="/Home" className={isHomeActive ? "active" : ""}><img src="home.png" className="icon"/>Home</Link></li>
+          <li><Link to="/interview"><img src="Vector.png" className="icon"/>Interview</Link></li>
+          <li><Link to="/progress"><img src="progress bar.png" className="icon"/>Progress</Link></li>
+          <li><Link to="/settings"><img src="settings.png" className="icon"/>Settings</Link></li>
+          <li onClick={handleLogout} className="logout"><img src="logout.png" className="icon"/>Log out</li>
         </ul>
       </nav>
     </div>
