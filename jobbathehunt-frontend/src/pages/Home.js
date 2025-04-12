@@ -3,6 +3,7 @@ import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sidebar";  // Import Sidebar
+import "../css/home.css";
 
 function Home() {
   const [user, setUser] = useState(null);
@@ -46,21 +47,52 @@ function Home() {
   }
 
   return (
-    <div style={{ display: "flex" }}>
-      <Sidebar />  {/* Sidebar stays on the side of the screen */}
-      
+    <div className="home-container">
+        <Sidebar />  {/* Sidebar stays on the side of the screen */}
+        <div className="triangle-home1"><img src="triangle sa bg.png" alt="bg1"/></div>
+       
+    <div className="home-panel" >
+  <h1 className="home-title">Home</h1>
+  <div className="line"></div>
+
+
       {/* Main Content */}
-      <div  style={{ padding: "20px" }} className="flex-1 p-10 ml-16 md:ml-64">  {/* Add margin to avoid overlap */}
-        <h1 className="text-3xl font-bold">Welcome to Home</h1>
+      <div  className="home">  {/* Add margin to avoid overlap */}
+        <div className="bro-icon"><img src="bro.png" alt="bro"/></div>
         {user ? (
-          <div className="mt-4">
-            <h2 className="text-xl">Hello, {user.displayName || user.email}!</h2>
+        <h1 className="welcome-user">Welcome Back, <span> {user.displayName || user.email}!</span> </h1>
+      ) : (
+        <p>Loading user...</p>
+      )}
+          <h2>Ready to start your interview?</h2>
+            <div className="shortcut-interview">Start Interview</div>
+
+
+            {/* job-recommendation */}
+        <div className="jobroles">
+          <h2>Recommended Roles for you</h2>
+            <div className="job-line"></div>
+         <div className="recommend-jobs">{/* add delete job recommendation*/}
+              {[
+                "UI/UX",
+                "FRONTEND DEVELOPER",
+                "MOBILE DEVELOPER",
+                "DATA SCIENTIST",
+                "BACKEND DEVELOPER",
+                "CYBER SECURTY"
+              ].map((role, i )=>(
+                <div className="job-box" key={i}>
+                  <span>{role}</span>
+                  <button className="try-btn">Try</button>
+                  </div>
+              ))
+              }
+          
+        </div>
+        </div>
         
-          </div>
-        ) : (
-          <p>Loading user...</p>
-        )}
       </div>
+    </div>
     </div>
   );
 }
