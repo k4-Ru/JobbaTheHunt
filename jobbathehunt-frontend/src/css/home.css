@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+20&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+20&family=Lexend+Deca:wght@100..900&display=swap');
+
+*{
+    box-sizing:border-box;
+    margin:0 ;
+    padding: 0;
+}
+    
+body{
+    background: #E2F9B8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+}
+.home-container{
+    background: linear-gradient(221deg, #313715 59.21%, #BBCE8A 110.5%);
+    width: 1285px;
+    height: 630px;
+    border-radius: 20px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    max-height: 100%;
+}
+
+.home-panel{
+    padding-top: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    text-align: center;
+    position:absolute;
+    z-index: 1;
+    width: 990px;
+    height: 590px;
+    margin-left: 250px;
+    border-radius: 20px;
+    background:  #FFF;
+    box-shadow: 0px 4px 30px 10px rgba(49, 55, 21, 0.50);
+}
+.triangle-home1{
+    position: absolute;
+    bottom: 48.5%;
+    left: 83.6%;
+    width: 200px;
+}
+
+
+.home-title{
+    text-align: left;
+    color: #313715;
+    font-family: "Lexend Deca";
+    font-size: 34px;
+    font-weight: 600;
+}
+.line{
+    width: 930px;
+    height: 2px;
+    background: #000000;
+}
+.home{
+    margin-top: 15px;
+    text-align: left;
+    color: #313715;
+    font-family: "Lexend Deca";
+    width: 930px;
+    height: 130px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: #BBCE8A;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 15px;
+}
+.welcome-user{
+    margin-left: 20px;
+    color:  #313715;
+    font-family: "Lexend Deca";
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 600;   
+    line-height: normal;
+    margin-bottom: 5px;
+}
+.home h2{
+    margin-left: 20px;
+    font-size: 12px;
+}
+.shortcut-interview{
+    margin-top: 10px;
+    margin-left: 35px;
+    background: #D16014;
+    width: 120px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: #E2F9B8;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.shortcut-interview:hover{
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+
+}
+.bro-icon{
+    position: absolute;
+    left: 75.6%;
+    width: 153px;
+    top: 14.2%;
+}
+.jobroles{
+    padding: 20px;
+    text-align: left;
+    margin-top: 40px;
+    margin-left: 15px;
+    width: 870px;
+    height: 330px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: #f2f3f1;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+.job-line{
+    position: absolute;
+    top: 47.5%;
+    right: 9%;
+    width: 350px;
+    height: 2px;
+    background: #000000;
+}
+.jobroles h2{
+    font-size:30px;
+    font-weight: 600;  
+}
+.recommend-jobs{
+    display: grid;
+    grid-template-columns: repeat(2,  2fr);
+    gap: 16px;
+    margin-top: 20px;
+}
+.job-box{
+    border-radius: 25px;
+    background: #E2F9B8;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    color: #583E07;
+    font-family: "Lexend Deca";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    display: flex;
+    padding: 10px;
+    padding-left: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.try-btn{
+    border-radius: 20px;
+    background:#CFBB8F;
+    display: flex;
+    width: 82px;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    color:  #5F4747;
+    text-align: justify;
+    font-family: "Lexend Deca";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    border-style: none;
+    cursor: pointer;
+}
