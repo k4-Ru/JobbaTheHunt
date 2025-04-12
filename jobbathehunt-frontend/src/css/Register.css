@@ -39,8 +39,7 @@ body{
 
 .register-bg1 {
     left: 0;
-    width: 200px; 
-    
+    width: 237.7px;   
 }
 
 .register-bg2 {
@@ -53,7 +52,7 @@ body{
     position: absolute;
     width: 100%;
     top: 8%;
-    left: 29.5%;
+    left: 28.5%;
     max-width: 170px;
 
 }
@@ -65,21 +64,22 @@ body{
     }
     .register-bg1 {
         left: -10%;
-        width: 161.889px;
-    height: 1138px;
+        width: 292.80px;
+        height: auto;
     }
 
     .register-bg2 {
-        width: 250.889px;
-        height: 930.291px; 
+        right: 0%;
+        width: 302px;
+        height: auto; 
     }
-
-
 }
 img {
     width: 100%; 
     height: auto; 
 }
+
+
 .register-title{
     position: relative;
     padding: 5px;
@@ -114,7 +114,9 @@ img {
     fill: rgba(86, 78, 88, 0.42);
     filter: drop-shadow(0px 20px 50px rgba(0, 0, 0, 0.25));
 }
+
 .start{
+    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -146,7 +148,11 @@ img {
     padding-left: 10px;
     color: #564E58;
     font-family: "Lexend Deca";
-
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.register-box:focus{
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 .password-container {
     position: relative; 
@@ -164,11 +170,9 @@ img {
     width: 20px; 
     height: 20px;
 }
-.forget{
-    font-size: 12px;
-    width: 96%;
-    text-align: right;
-    cursor: pointer;
+.register-eyecon:focus{
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 .signup-btn{
     font-size: 12px;
@@ -184,6 +188,10 @@ img {
     margin-bottom: 10px;
     margin-top: 20px;
     cursor: pointer;
+    transition: transform 0.3s ease,box-shadow 0.3s ease;
+}
+.signup-btn:hover{
+    transform: scale(1.1);
 }
 .continue{
     display: flex;
