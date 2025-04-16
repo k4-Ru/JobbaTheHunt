@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap');
+
+body {
+    background: linear-gradient(180deg, #e8ffcc 0%, #cde4a1 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Lexend Deca', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  /*bg*/
+  .outer-box {
+    position: relative;
+    background-image: linear-gradient(to left bottom, #313715, #373d1a, #3d431e, #434a23, #495028, #545c31, #5f683a, #6a7444, #7e8a55, #92a066, #a6b778, #bbce8a);
+    padding: 2rem 8rem;
+    border-radius: 30px;
+    width: fit-content;
+    margin: 4rem auto;
+    overflow: hidden;
+  }
+  
+  .bg-triangle {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 145px;
+    height: 285px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  .bg-triangle.left {
+    left: -12px;
+  }
+  
+  .bg-triangle.right {
+    right: -12px;
+  }
+
+.container {
+    background-color: #fff;
+    border-radius: 25px;
+    padding: 2rem;
+    max-width: 850px;
+    margin: auto;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /*steps*/
+.progress-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    color: #000;
+}
+
+.step-circle {
+    width: 24px;
+    height: 24px;
+    background-color: #ffd700;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.step-line {
+    height: 2px;
+    width: 50px;
+    background-color: #ffd700;
+    margin: 0 5px;
+}
+
+.step-circle:before {
+    content: "✓";
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/*title and sub */
+.main h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.main p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/*skills section*/
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.skill-button {
+    background-color: #e2e2e2;
+    color: #000;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.skill-button:hover {
+    background-color: #b6cdb0;
+}
+
+.skill-button.selected {
+    background-color: #3c4a28;
+    color: white;
+}
+
+/*done btn*/
+.done-button {
+    background-color: #e86c1e;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-top: 20px;
+}
+
+.done-button:after {
+    content: "✓";
+    margin-left: 8px;
+}
