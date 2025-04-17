@@ -2,6 +2,8 @@
 
 jobbathehunt-backend/.env
 jobbathehunt-backend/firebase-admin.json
+jobbathehunt-backend/package-lock.json
+
 jobbathehunt-frontend/.env
 
 

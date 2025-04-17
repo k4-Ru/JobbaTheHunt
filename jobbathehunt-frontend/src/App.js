@@ -12,6 +12,7 @@ import JobDesc from "./pages/JobDesc";
 import UpdatePassword from "./pages/updatePassword";
 import VerificationSent from "./pages/verificationSent";
 import Session from "./pages/session";
+import Eval from "./pages/Eval";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -89,6 +90,8 @@ function App() {
         {/* CHANGE URL MAMAYA*/}
         <Route path="/session/:jobId" element={user ? <Session /> : <Navigate to="/login" />} />
         <Route path="/update-password" element={<UpdatePassword />} />
+        <Route path="/eval/:sessionId" element={user ? <Eval /> : <Navigate to="/login" />} />
+
       </Routes>
     </Router>
   );

@@ -2,17 +2,13 @@ import { useParams, useLocation } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import Transcription from "../components/transcription";
 import axios from "axios";
-
 import { useNavigate } from "react-router-dom";
 import { auth, onAuthStateChanged } from "../components/auth";
 
-
-
-
 const Session = () => {
-  const { jobId } = useParams();
+  //const { jobId } = useParams();
   const location = useLocation();
-  const jobRole = location.state?.jobRole || "Default Role";
+  const jobRole = location.state?.jobRole;
 
   const [text, setText] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -22,85 +18,114 @@ const Session = () => {
   const videoRef = useRef(null);
   const recognitionRef = useRef(null);
 
-
   const [userId, setUserId] = useState(null); // Track authenticated user
   const [checkingAuth, setCheckingAuth] = useState(true); // Handle loading state
   const navigate = useNavigate(); // Navigate to another page if not authenticated
 
 
 
+
+
+  // Check if user is logged in...
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        navigate("/login"); // Redirect to login if user is not authenticated
+        navigate("/login");
       } else {
-        setUserId(user.uid); // Set the userId from Firebase
+        setUserId(user.uid);
+        console.log("User ID:", user.uid);
       }
-      setCheckingAuth(false); // Done checking auth
+      setCheckingAuth(false);
     });
 
-    return () => unsubscribe(); // Cleanup on unmount
+    return () => unsubscribe();
   }, [navigate]);
 
 
 
 
 
-  // 🔹 Start interview
+
+
+  // Start interview
   useEffect(() => {
-
-    if (!userId) return;
-
+    if (!userId || !jobRole) 
+      return;
+  
     const startInterview = async () => {
       try {
         const res = await axios.post("http://localhost:5000/api/interview", {
           jobRole,
           userId,
+          
         });
+  
         setConversation([{ role: "GPT", content: res.data.question }]);
         setSessionId(res.data.sessionId);
-      } catch (error) {
-        console.error("Error starting interview:", error);
-        alert("Error starting interview. Please try again.");
+      } catch (err) {
+        console.error("Interview start error:", err.response?.data || err.message);
+        alert("Something went wrong. Try refreshing.");
       }
     };
-
+  
     startInterview();
-  }, [jobRole, userId]);
+  }, [userId, jobRole]); // add checkingAuth to avoid unnecessary re-renders
+  
+  
+  
+
+  const userIdRef = useRef(userId);
+
+  useEffect(() => {
+    userIdRef.current = userId;
+  }, [userId]);
 
 
 
-
-
-
-
-
-
-
-  // 🔹 Handle user response
   const handleUserResponse = async (customText) => {
     const responseText = customText || text;
-    if (!responseText || !sessionId) return;
-
+    if (!responseText) return;
+  
     setConversation((prev) => [...prev, { role: "User", content: responseText }]);
-    setText(""); // Clear input field
+    setText("");
 
+    console.log("Sending:", { sessionId, userId, jobRole,  userResponse: responseText });
+    
+
+  
     try {
+      // Send user response to the backend API for processing
       const res = await axios.post("http://localhost:5000/api/interview", {
         userResponse: responseText,
         jobRole,
         userId,
       });
-
+  
+      console.log("Sending response:", responseText);
+  
       if (res.data?.question) {
+        // If there's a question in the response, add it to the conversation
         setConversation((prev) => [...prev, { role: "GPT", content: res.data.question }]);
-        if (!sessionId) setSessionId(res.data.sessionId); // In case it's newly created
+  
+        // If this is the first time receiving a session, set the session ID
+        if (!sessionId) setSessionId(res.data.sessionId);
       }
-    } catch (err) {
-      console.error("Failed to fetch next question:", err);
-      alert("Could not continue interview. Try again.");
+  
+      // Check if the interview is completed (final question, rating, and evaluation)
+      if (res.data?.status === 'completed') {
+
+        alert(`Interview completed.`);
+        
+        window.location.href = `/eval?sessionId=${res.data.sessionId}`;
+    } else {
+      // Handle the normal interview process if not completed
+      console.log('Next question:', res.data.question);
     }
-  };
+  } catch (err) {
+    console.error('Failed to fetch next question:', err);
+    alert('Could not continue interview. Try again.');
+  }
+};
 
 
 
@@ -108,38 +133,55 @@ const Session = () => {
 
 
 
-
-
-
-
-  // 🔹 Speech Recognition Setup
   useEffect(() => {
     if (!("webkitSpeechRecognition" in window)) {
       alert("Your browser does not support speech recognition.");
       return;
     }
 
+    let silenceTimeout;
+
     recognitionRef.current = new window.webkitSpeechRecognition();
-    recognitionRef.current.continuous = false; // Set to false for one-shot response
+    recognitionRef.current.continuous = true;
     recognitionRef.current.interimResults = false;
     recognitionRef.current.lang = "en-US";
 
     recognitionRef.current.onstart = () => setIsListening(true);
     recognitionRef.current.onend = () => setIsListening(false);
+
     recognitionRef.current.onresult = (event) => {
+      clearTimeout(silenceTimeout); // Reset if still speaking
+
       let transcript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript + " ";
+
+        
+
       }
+
       const finalTranscript = transcript.trim();
       setText(finalTranscript);
-      handleUserResponse(finalTranscript); // Automatically submit response
+      
+      
+      
+      console.log("Transcription:", finalTranscript); //test
+
+
+      // Wait n seconds to see if user stopped talking
+      silenceTimeout = setTimeout(() => {
+        if (finalTranscript) {
+          handleUserResponse(finalTranscript);
+          setText(""); // Clear after submission
+        }
+      }, 3000); // Adjust timeout to match how long you're willing to wait
     };
 
     return () => {
       recognitionRef.current?.abort();
+      clearTimeout(silenceTimeout);
     };
-  }, []);
+  }, [userId]);
 
 
 
@@ -150,6 +192,14 @@ const Session = () => {
 
 
 
+
+
+
+
+
+
+
+  // On/Off Mic
   const toggleListening = () => {
     if (!recognitionRef.current) return;
 
@@ -166,7 +216,14 @@ const Session = () => {
 
 
 
-  // 🔹 Camera setup
+
+
+
+
+
+
+
+  // Camera
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -182,7 +239,7 @@ const Session = () => {
 
 
 
-
+  // On/Off Camera
   const toggleCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
@@ -197,14 +254,45 @@ const Session = () => {
 
 
 
-  const endSession = () => {
-    recognitionRef.current?.abort();
-    if (videoRef.current?.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-    }
-    alert("Interview Session ended.");
-  };
 
+
+
+
+
+  const endSession = async () => {
+    const isConfirmed = window.confirm("Are you sure you want to abandon the session? This will end the interview.");
+  
+    if (isConfirmed) {
+      // Abort recognition
+      recognitionRef.current?.abort();
+  
+      // Stop video tracks
+      if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+  
+      // Flag the session as abandoned on the server
+      try {
+        await axios.post("http://localhost:5000/markAbandoned", { sessionId });
+        console.log("Session marked as abandoned");
+      } catch (error) {
+        console.error("Failed to mark session as abandoned:", error);
+      }
+  
+      alert("Interview Session abandoned.");
+      window.location.href = "/interview"; // or "/choose" or wherever you want to go
+    }
+  };
+  
+
+
+
+
+
+  // Start camera on load
+  useEffect(() => {
+    startCamera();
+  }, []);
 
 
 
@@ -213,25 +301,48 @@ const Session = () => {
 
 
   useEffect(() => {
-    startCamera();
+    const handleBeforeUnload = (event) => {
+      if (sessionId.current) {
+        navigator.sendBeacon(
+          "http://localhost:5000/markAbandoned",
+          new Blob([JSON.stringify({ sessionId: sessionId.current })], {
+            type: "application/json",
+          })
+        );
+        console.log("Session marked abandoned (via beacon)");
+      }
+
+      const warning = "Leaving this page will mark the session as abandoned.";
+      event.returnValue = warning;
+      return warning;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
 
-
-
   
-   if (checkingAuth) {
+
+
+
+  // Loading on checking account
+  if (checkingAuth) {
     return <div>Loading...</div>;
   }
 
-
-
-
   return (
+
+
     <div style={{ display: "flex", height: "100vh" }}>
       <div style={{ flex: 1, padding: "20px", backgroundColor: "#BBCE8A" }}>
         <div style={{ position: "relative" }}>
-          <img src="interviewer.png" alt="AI" style={{ width: "100%" }} />
+
+
+          
+          <img src="/interviewer.png" alt="AI" style={{ width: "100%" }} />
           {isCameraOn ? (
             <video
               ref={videoRef}
@@ -282,8 +393,9 @@ const Session = () => {
       <div style={{ width: "33%", margin: "20px" }}>
         <Transcription
           conversation={conversation}
-          onUserResponse={() => handleUserResponse()}
+          onUserResponse={(text) => handleUserResponse(text)}
           userSpeech={text}
+          userId={userId}
         />
       </div>
     </div>

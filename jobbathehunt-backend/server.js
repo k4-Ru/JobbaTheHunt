@@ -248,7 +248,7 @@ app.post("/update-verification", async (req, res) => {
 
 
 
-
+ 
 
 
 
@@ -296,7 +296,7 @@ app.post("/check-preferences", async (req, res) => {
 
 
 
-//testing ng skills and interest ni  user
+//debugging testing ng skills and interest ni  user
 app.get("/user-preferences/:firebase_uid", async (req, res) => {
   try {
     const { firebase_uid } = req.params;
@@ -344,7 +344,7 @@ app.get("/user-preferences/:firebase_uid", async (req, res) => {
 
 
 
-//chooseYourPath
+//chooseYourPath , insert to user_preferences table
 app.post("/user-preferences", async (req, res) => {
   try {
     const { userId, skills } = req.body;
@@ -499,55 +499,119 @@ app.get("/job-role/:id", async (req, res) => {     //job by id
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post("/api/interview", async (req, res) => {
-  const { jobRole, userId } = req.body;
+  const { jobRole, userId, userResponse } = req.body;
+  console.log("Received data:", { jobRole, userId, userResponse });
+  
+  
+  const firstPrompt = `you are a senior ${jobRole} 
+      interviewing a person for the ${jobRole} role within a company. 
+      what are the technical, behavioral questions you would ask the candidates? 
+      give me at least 2 questions in technical and behavioral categories
+      Here are rules:
+      Talk like a person, imagine this is just a normal conversation.
+      Do not type like a robot, be friendly and casual (no numbering, bullet points, etc.). 
+      Do not repeat questions (because the conversation might loop)
+      Start by greeting the user and when asking does include a number on the questions.
+      Do not ask generic questions, make it unique and specific to the job role.
+      Start by asking the first a question. Ask a question one by one only (seperate messages).
+      Ask follow-up questions if needed.
+      After all the main 2 questions are answered, provide a final evaluation (text) and a rating from 0 to 10.0. 
+      Do not ever give an evaluation and a rating if not all questions have been answered.
+      Do not ever mentioned that you are going to give a rating and an evaluation.
 
-  console.log("Received data:", { jobRole, userId });
+      Seperate the rating and evaluation from the last question into a seperate message.
 
+      The Rating and Evaluation format should only be like this: Rating: "0-10.0" and Evaluation: "text".`;
   try {
+    // Validate required fields
     if (!jobRole || !userId) {
       return res.status(400).json({ error: "jobRole and userId are required." });
     }
 
-
-    // Proceed without checking if the jobRole exists, since it's picked by the user
+    // Check if job role exists
     const [roleRow] = await db.query("SELECT id FROM job_roles WHERE role_name = ?", [jobRole]);
     const jobRoleId = roleRow.length > 0 ? roleRow[0].id : null;
 
     if (!jobRoleId) {
-      return res.status(400).json({ error: "Invalid job role." });
+      return res.status(400).json({ error: "Job role does not exist." });
     }
 
-
-
-
-    // Check for an ongoing session
+    // Check if there's an ongoing session
     const [sessions] = await db.query(
       "SELECT * FROM interview_sessions WHERE user_id = ? AND status = 'ongoing'",
       [userId]
     );
 
-
     const existingSession = sessions[0];
     let sessionId;
 
-
-
     if (!existingSession) {
-      // Create a new session if no ongoing one exists
+
       const [result] = await db.query(
         "INSERT INTO interview_sessions (user_id, job_role_id, status) VALUES (?, ?, ?)",
         [userId, jobRoleId, 'ongoing']
       );
 
-
-
-
-
       sessionId = result.insertId;
-      console.log("New session created with ID:", sessionId);
+      console.log("New session started, with ID:", sessionId);
 
-      const firstQuestion = `You are an interviewer for the role of ${jobRole}. Start by asking the first question.`;
+
+      
+
+      /*const firstPrompt = `Talk like a person, imagine this is just a normal conversation.
+      Do not type like a robot, be friendly and casual (no numbering, bullet points, etc.). 
+      Do not repeat questions (because the conversation might loop)
+      You are an interviewer for the role of ${jobRole}. 
+      Start by greeting the user and when asking does include a number on the questions.
+      Do not ask generic questions, make it unique and specific to the job role.
+      Have a total of 2 technical-based questions (you can add more questions if needed). 
+      Start by asking the first a question. Ask a question one by one only.
+
+      Ask follow-up questions if needed. 
+      After all the main 2 questions are answered, 
+      provide a final evaluation (text) and a rating from 0 to 10.0.
+      Do not ever give an evaluation and a rating if not all questions have been answered.
+      Do not ever mentioned that you are going to give a rating and an evaluation.
+      Seperate the rating and evaluation from the questions
+      
+      The Rating and Evaluation format should only be like this: Rating: "0-10.0" and Evaluation: "text".`; */
+
+
+
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "system", content: firstPrompt }],
+      });
+
+      const firstQuestion = response.choices[0].message.content;
+
       await db.query(
         "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
         [sessionId, 'system', firstQuestion]
@@ -555,54 +619,175 @@ app.post("/api/interview", async (req, res) => {
 
       return res.json({ question: firstQuestion, sessionId });
     } else {
+      // Use existing session
       sessionId = existingSession.id;
+      console.log("Using existing session with ID:", sessionId);
     }
 
-
-
-
-
-    // If there's a user response, insert it
-    if (req.body.userResponse) {
-      await db.query(
-        "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
-        [sessionId, 'user', req.body.userResponse]
+    // If no userResponse, just return the last system message
+    if (!userResponse) {
+      const [lastSystemMessage] = await db.query(
+        "SELECT message FROM interview_messages WHERE session_id = ? AND role = 'system' ORDER BY id DESC LIMIT 1",
+        [sessionId]
       );
+
+      return res.json({
+        question: lastSystemMessage[0]?.message || "No previous question found.",
+        sessionId
+      });
     }
 
 
-    // Generate the next question using OpenAI
-    const prompt = req.body.userResponse
-      ? `You are an interviewer. Based on the user's response: "${req.body.userResponse}", ask the next question.`
-      : `You are an interviewer for the role of ${jobRole}. Start by asking the first question.`;
+    // Save the user response
+    await db.query(
+      "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
+      [sessionId, 'user', userResponse]
+    );
+    console.log("User response saved:", userResponse); //debug
+
+
+
+    const [pastMessages] = await db.query(
+      "SELECT role, message FROM interview_messages WHERE session_id = ? ORDER BY id ASC",
+      [sessionId]
+    );
+    
+    // Build the message history
+    const openAIMessages = [
+      { role: "system", content: firstPrompt },
+      ...pastMessages.map(row => ({
+        role: row.role,
+        content: row.message
+      }))
+    ];
+    
+
+    //gpt again
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [{ role: "system", content: prompt }],
+      messages: openAIMessages,
     });
+    
 
-    console.log(`Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
-    const nextQuestion = response.choices[0].message.content;
-    console.log("Next Question:", nextQuestion);
+    const message = response.choices[0].message.content;
+
+    console.log(`Tokens used - Prompt: ${response.usage?.prompt_tokens || 'N/A'}, Completion: ${response.usage?.completion_tokens || 'N/A'}, Total: ${response.usage?.total_tokens || 'N/A'}`);
+    console.log("Next Question or Final Message:", message);
 
     await db.query(
       "INSERT INTO interview_messages (session_id, role, message) VALUES (?, ?, ?)",
-      [sessionId, 'system', nextQuestion]
+      [sessionId, 'system', message]
     );
 
-    res.json({ question: nextQuestion, sessionId });
+    const ratingMatch = message.match(/Rating:\s*([0-9]+(?:\.[0-9])?)/i);
+    const evaluationMatch = message.match(/Evaluation:\s*(.+)/is);
+
+    if (ratingMatch && evaluationMatch) {
+      const rating = parseFloat(ratingMatch[1]);
+      const evaluation = evaluationMatch[1].trim();
+
+      await db.query(
+        "UPDATE interview_sessions SET status = ?, rating = ?, evaluation = ? WHERE id = ?",
+        ['completed', rating, evaluation, sessionId]
+      );
+
+      console.log("Interview completed. Rating and evaluation saved."); // ⭐ ADDED: Confirmation log
+
+
+    }
+
+    return res.json({ question: message, sessionId });
+
   } catch (error) {
     console.error("Error in /api/interview:", error.message || error);
 
-    
     if (error.response?.status === 429) {
       return res.status(429).json({ error: "Quota exceeded. Please try again later." });
     } else if (error.response?.status === 400) {
       return res.status(400).json({ error: "Invalid request to OpenAI API." });
     } else {
-      return res.status(500).json({ error: "Failed to generate question. Please try again later." });
+      return res.status(500).json({ error: "Failed to process the request. Please try again later." });
     }
   }
+});
+
+
+
+
+/*
+mysql> describe interview_sessions;
++-------------+-----------------------------------------+------+-----+---------------------+----------------+
+| Field       | Type                                    | Null | Key | Default             | Extra          |
++-------------+-----------------------------------------+------+-----+---------------------+----------------+
+| id          | int(11)                                 | NO   | PRI | NULL                | auto_increment |
+| user_id     | varchar(255)                            | NO   | MUL | NULL                |                |
+| job_role_id | int(11)                                 | NO   | MUL | NULL                |                |
+| started_at  | datetime                                | YES  |     | current_timestamp() |                |
+| status      | enum('ongoing','completed','abandoned') | YES  |     | NULL                |                |
+| rating      | decimal(3,1)                            | YES  |     | NULL                |                |
+| evaluation  | text                                    | YES  |     | NULL                |                |
++-------------+-----------------------------------------+------+-----+---------------------+----------------+
+7 rows in set (0.12 sec)
+
+*/
+
+
+
+
+
+
+app.get ("/eval/:sessionId",  async (req, res) =>{
+
+  const {sessionId} = req.params;
+
+  try {
+    const [result] = await db.execute("SELECT * FROM interview_sessions WHERE id = ?", [sessionId]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "not found" }); 
+    }
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("Error fetching:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+
+
+
+
+
+//unused as of 4-16-2025
+
+app.post("/checkSession", (req, res) => {
+  const { userId } = req.body;
+
+  const query = "SELECT * FROM interview_sessions WHERE user_id = ? ORDER BY started_at DESC LIMIT 1";
+  pool.execute(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Error checking session:", err);
+      return res.status(500).json({ message: "Error checking session." });
+    }
+
+    if (results.length > 0) {
+      const session = results[0];
+      if (session.status === "abandoned") {
+        // If the session was abandoned, return it
+        return res.status(200).json(session);
+      } else {
+        // Otherwise, continue with the ongoing session
+        return res.status(200).json(session);
+      }
+    } else {
+      // No session found for this user
+      return res.status(404).json({ message: "No session found." });
+    }
+  });
 });
 
 
@@ -614,49 +799,30 @@ app.post("/api/interview", async (req, res) => {
 
 
 
+app.post("/markAbandoned", async (req, res) => {
+  const { sessionId } = req.body;  // The sessionId to mark as abandoned
 
+  if (!sessionId) {
+    return res.status(400).json({ error: "sessionId is required." });
+  }
 
+  try {
+    const [result] = await db.query(
+      "UPDATE interview_sessions SET status = 'abandoned' WHERE id = ?",
+      [sessionId]
+    );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*    useEffect(() => {
-  const handleBeforeUnload = (event) => {
-    event.preventDefault();
-    event.returnValue = ""; // Required for modern browsers to show the confirmation dialog
-  };
-
-  window.addEventListener("beforeunload", handleBeforeUnload);
-
-  return () => {
-    window.removeEventListener("beforeunload", handleBeforeUnload); // Cleanup on unmount
-  };
-}, []);     */
-
-
-
-
-
-
-
-
-
-
-
+    if (result.affectedRows > 0) {
+      return res.status(200).json({ message: "Session marked as abandoned." });
+      console.log("Session  Id has been abandoned:", sessionId);
+    } else {
+      return res.status(404).json({ error: "Session not found." });
+    }
+  } catch (error) {
+    console.error("Error marking session as abandoned:", error.message || error);
+    return res.status(500).json({ error: "Failed to mark session as abandoned." });
+  }
+});
 
 
 
