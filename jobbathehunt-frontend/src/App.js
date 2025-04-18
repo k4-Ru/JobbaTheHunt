@@ -90,7 +90,8 @@ function App() {
         {/* CHANGE URL MAMAYA*/}
         <Route path="/session/:jobId" element={user ? <Session /> : <Navigate to="/login" />} />
         <Route path="/update-password" element={<UpdatePassword />} />
-        <Route path="/eval/:sessionId" element={user ? <Eval /> : <Navigate to="/login" />} />
+        <Route path="/eval/:sessionId?" element={user ? <Eval /> : <Navigate to="/login" />} />
+
 
       </Routes>
     </Router>

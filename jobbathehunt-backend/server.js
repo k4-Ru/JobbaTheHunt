@@ -545,9 +545,14 @@ app.post("/api/interview", async (req, res) => {
       Do not ever give an evaluation and a rating if not all questions have been answered.
       Do not ever mentioned that you are going to give a rating and an evaluation.
 
-      Seperate the rating and evaluation from the last question into a seperate message.
+      Try to challenge the user with the questions, and make it a bit difficult.
+      Be strict about your rating and evaluation. 
 
-      The Rating and Evaluation format should only be like this: Rating: "0-10.0" and Evaluation: "text".`;
+
+      *IMPORTANT* Seperate the rating and evaluation from the last question into a seperate message.
+
+      The Rating and Evaluation format should only be typed like this: Rating: "0-10.0" and Evaluation: "text". *STARTS WITH "Rating: (0.0-10.0) ALWAYS.* ` ;
+
   try {
     // Validate required fields
     if (!jobRole || !userId) {
@@ -561,6 +566,8 @@ app.post("/api/interview", async (req, res) => {
     if (!jobRoleId) {
       return res.status(400).json({ error: "Job role does not exist." });
     }
+
+
 
     // Check if there's an ongoing session
     const [sessions] = await db.query(
@@ -580,6 +587,7 @@ app.post("/api/interview", async (req, res) => {
 
       sessionId = result.insertId;
       console.log("New session started, with ID:", sessionId);
+      console.log("Job role ID:", jobRoleId); //debug
 
 
       
@@ -652,7 +660,7 @@ app.post("/api/interview", async (req, res) => {
       [sessionId]
     );
     
-    // Build the message history
+    // message history
     const openAIMessages = [
       { role: "system", content: firstPrompt },
       ...pastMessages.map(row => ({
@@ -663,10 +671,9 @@ app.post("/api/interview", async (req, res) => {
     
 
     //gpt again
-
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: openAIMessages,
+      messages: openAIMessages,   //send message history 
     });
     
 
@@ -692,9 +699,11 @@ app.post("/api/interview", async (req, res) => {
         ['completed', rating, evaluation, sessionId]
       );
 
-      console.log("Interview completed. Rating and evaluation saved."); // ⭐ ADDED: Confirmation log
 
+      console.log("Interview completed. Rating and evaluation saved.");
 
+      return res.json({status: 'completed',  sessionId , rating, evaluation });
+      
     }
 
     return res.json({ question: message, sessionId });
@@ -737,15 +746,33 @@ mysql> describe interview_sessions;
 
 
 
-app.get ("/eval/:sessionId",  async (req, res) =>{
+
+
+
+
+
+
+/*app.get ("/eval/:sessionId",  async (req, res) =>{
 
   const {sessionId} = req.params;
+  const userId = req.useruid;
+
+  console.log("Session ID:", sessionId); //debug
+  console.log("User ID:", userId); //debug
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
   try {
-    const [result] = await db.execute("SELECT * FROM interview_sessions WHERE id = ?", [sessionId]);
+    const [result] = await db.execute(
+      "SELECT * FROM interview_sessions WHERE id = ? AND user_id = ?",
+      [sessionId, userId]
+      
+    );
 
     if (result.length === 0) {
-      return res.status(404).json({ error: "not found" }); 
+      return res.status(403).json({ error: "Forbidden or not found" });
     }
 
     res.status(200).json(result[0]);
@@ -753,7 +780,74 @@ app.get ("/eval/:sessionId",  async (req, res) =>{
     console.error("Error fetching:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+}); */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/eval", async (req, res) => {
+  const { userId, sessionId } = req.body;
+
+  try {
+    const [rows] = await db.query(
+      "SELECT rating, evaluation, user_id, status FROM interview_sessions WHERE id = ?",
+      [sessionId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    const session = rows[0];
+
+    if (session.user_id !== userId) {
+      return res.status(403).json({ error: "Unauthorized access" });
+    }
+
+    if (session.status !== "completed") {
+      return res.status(200).json({ status: "not_completed" });
+    }
+
+    return res.status(200).json({
+      status: "completed",
+      rating: session.rating,
+      evaluation: session.evaluation,
+    });
+  } catch (err) {
+    console.error("Error fetching evaluation:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
 });
+
+
+
+
+
+
+
+
 
 
 

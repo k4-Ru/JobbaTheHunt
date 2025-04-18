@@ -1,4 +1,4 @@
-import { useParams, useLocation } from "react-router-dom";
+import {  useLocation } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import Transcription from "../components/transcription";
 import axios from "axios";
@@ -57,6 +57,7 @@ const Session = () => {
         const res = await axios.post("http://localhost:5000/api/interview", {
           jobRole,
           userId,
+  
           
         });
   
@@ -94,7 +95,6 @@ const Session = () => {
 
   
     try {
-      // Send user response to the backend API for processing
       const res = await axios.post("http://localhost:5000/api/interview", {
         userResponse: responseText,
         jobRole,
@@ -116,9 +116,12 @@ const Session = () => {
 
         alert(`Interview completed.`);
         
-        window.location.href = `/eval?sessionId=${res.data.sessionId}`;
+        
+        navigate(`/eval`, { state: { sessionId: res.data.sessionId, userId } });
+
+
+
     } else {
-      // Handle the normal interview process if not completed
       console.log('Next question:', res.data.question);
     }
   } catch (err) {
@@ -150,7 +153,7 @@ const Session = () => {
     recognitionRef.current.onend = () => setIsListening(false);
 
     recognitionRef.current.onresult = (event) => {
-      clearTimeout(silenceTimeout); // Reset if still speaking
+      clearTimeout(silenceTimeout); //Reset if still speaking
 
       let transcript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -174,14 +177,14 @@ const Session = () => {
           handleUserResponse(finalTranscript);
           setText(""); // Clear after submission
         }
-      }, 3000); // Adjust timeout to match how long you're willing to wait
+      }, 2000); // Adjust timeout to match how long you're willing to wait
     };
 
     return () => {
       recognitionRef.current?.abort();
       clearTimeout(silenceTimeout);
     };
-  }, [userId]);
+  }, [userId, sessionId]);  //tp userid
 
 
 
@@ -238,8 +241,7 @@ const Session = () => {
 
 
 
-
-  // On/Off Camera
+  // toggle Camera
   const toggleCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
@@ -289,6 +291,7 @@ const Session = () => {
 
 
 
+
   // Start camera on load
   useEffect(() => {
     startCamera();
@@ -302,10 +305,10 @@ const Session = () => {
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
-      if (sessionId.current) {
+      if (sessionId) {
         navigator.sendBeacon(
           "http://localhost:5000/markAbandoned",
-          new Blob([JSON.stringify({ sessionId: sessionId.current })], {
+          new Blob([JSON.stringify({ sessionId })], { 
             type: "application/json",
           })
         );
@@ -321,10 +324,11 @@ const Session = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, []);
+  }, [sessionId]);
 
 
   
+
 
 
 
@@ -332,6 +336,9 @@ const Session = () => {
   if (checkingAuth) {
     return <div>Loading...</div>;
   }
+
+
+
 
   return (
 
