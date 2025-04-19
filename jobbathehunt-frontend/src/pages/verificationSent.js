@@ -23,7 +23,7 @@ function VerificationSent() {
 
           if (response.ok) {
             console.log("Verification status updated in the database.");
-            window.location.reload();
+            window.location.reload(); // f5
           } else {
             console.error("Failed to update verification status in the database.");//console messages, can be deleted
             alert("There was an issue updating your verification status. Please try again.");

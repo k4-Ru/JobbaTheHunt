@@ -12,11 +12,12 @@ import JobDesc from "./pages/JobDesc";
 import UpdatePassword from "./pages/updatePassword";
 import VerificationSent from "./pages/verificationSent";
 import Session from "./pages/session";
+import Eval from "./pages/Eval";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [hasChosen, setHasChosen] = useState(false); // Track if the user has chosen their path
+  const [hasChosen, setHasChosen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -24,7 +25,6 @@ function App() {
       setLoading(false);
 
       if (currentUser) {
-        // Fetch user data from the backend to check if they have chosen their path
         const response = await fetch("http://localhost:5000/check-preferences", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -32,7 +32,7 @@ function App() {
         });
 
         const data = await response.json();
-        setHasChosen(data.hasChosen); // Update the state based on the backend response
+        setHasChosen(data.hasChosen);
       }
     });
 
@@ -85,8 +85,14 @@ function App() {
         <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />
         <Route path="/interview" element={user ? <Interview /> : <Navigate to="/login" />} />
         <Route path="/job/:id" element={user ? <JobDesc /> : <Navigate to="/login" />} />
-        <Route path="/speech" element={user ? <Session /> : <Navigate to="/login" />} />
+
+
+        {/* CHANGE URL MAMAYA*/}
+        <Route path="/session/:jobId" element={user ? <Session /> : <Navigate to="/login" />} />
         <Route path="/update-password" element={<UpdatePassword />} />
+        <Route path="/eval/:sessionId?" element={user ? <Eval /> : <Navigate to="/login" />} />
+
+
       </Routes>
     </Router>
   );

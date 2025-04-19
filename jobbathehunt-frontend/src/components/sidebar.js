@@ -51,7 +51,10 @@ const Sidebar = () => {
   }
   const isHomeActive = location.pathname === "/Home";
 
-  console.log(location.pathname);
+
+
+  
+
   return (
     <div className="sidebar">
        <div className="triangle-home2"><img src="triangle sa bg1.png" alt="bg2"/></div>

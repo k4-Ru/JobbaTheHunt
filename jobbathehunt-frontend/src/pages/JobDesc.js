@@ -4,7 +4,7 @@ import axios from "axios";
 import Sidebar from "../components/sidebar";
 
 const JobDesc = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Get jobId from the route
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,8 +32,7 @@ const JobDesc = () => {
     return <p>Job not found</p>;
   }
 
-
-  // hatiin for each line
+  // Split description into lines
   const lines = job.description.split("\n");
 
   return (
@@ -43,8 +42,7 @@ const JobDesc = () => {
       <div style={{ padding: "20px", flex: 1 }}>
         <h1>{job.role_name}</h1>
 
-
-        {/* roadmap, display if meron*/}
+        {/* Display roadmap if available */}
         {job.roadmap && (
           <p>
             <a href={job.roadmap} target="_blank" rel="noopener noreferrer">
@@ -56,14 +54,12 @@ const JobDesc = () => {
         <div>
           {lines.map((line, index) =>
             line.startsWith("-") ? (
-              <li key={index}>{line.substring(1).trim()}</li> // Bullet point if nagsisimula sa "-"
+              <li key={index}>{line.substring(1).trim()}</li> // Bullet point if starts with "-"
             ) : (
               <p key={index}>{line}</p> // Regular text
             )
           )}
         </div>
-
-    
 
         <div style={{ marginTop: "20px" }}>
           <button
@@ -73,10 +69,14 @@ const JobDesc = () => {
             Back
           </button>
 
-         
+          {/* Navigate to Session with jobId and jobRole */}
           <button
-            onClick={() => navigate("/speech")}
-            style={{ padding: "10px 20px", cursor: "pointer"}}
+            onClick={() =>
+              navigate(`/session/${id}`, {
+                state: { jobRole: job.role_name }, // Pass jobRole dynamically
+              })
+            }
+            style={{ padding: "10px 20px", cursor: "pointer" }}
           >
             Start Interview
           </button>

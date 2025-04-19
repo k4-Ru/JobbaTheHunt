@@ -156,7 +156,12 @@ function Login() {
               type="email"
               placeholder="Email Address" 
               value={email}
-              onChange={(e) => setEmail(e.target.value.toLowerCase())}  //gawin lowercase
+              onChange={(e) => setEmail(e.target.value.toLowerCase())} //gawin lowercase
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleLogin(); // Trigger login on Enter key press
+                }
+              }} 
               className="input-box"
             />
 
@@ -170,6 +175,11 @@ function Login() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handleLogin(); // Trigger login on Enter key press
+                  }
+                }}
                 className="input-box password-input"
               />
               <img 
